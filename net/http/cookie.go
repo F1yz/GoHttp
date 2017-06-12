@@ -15,7 +15,7 @@ type Cookie struct {
 	HttpOnly bool
 }
 
-// 4 debug?
+// for value of Set-Cookie header
 func (c *Cookie) String() string {
 	
 }
