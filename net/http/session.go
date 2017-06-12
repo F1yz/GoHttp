@@ -1,6 +1,6 @@
 package http
 
-import "fmt"
+// import "fmt"
 
 // Session，需要一个map,和上次访问时间（用于Session GC)
 type Session interface {
