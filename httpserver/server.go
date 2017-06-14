@@ -21,8 +21,6 @@ func (server *server) Connect() (errMsg error){
 	return
 }
 
-
-
 func (server *server) GetClient() (client *Client, err error) {
 	clientConn, err := server.conn.Accept();
 	if err != nil {

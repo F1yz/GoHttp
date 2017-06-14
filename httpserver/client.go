@@ -43,7 +43,6 @@ func (client *Client) GetRequest() {
 
 func (client *Client) SetReponse() {
 	defer func() {
-		fmt.Println(client.Conn.RemoteAddr())
 		client.Conn.Close()
 		close(client.WaitChan)
 	}()
