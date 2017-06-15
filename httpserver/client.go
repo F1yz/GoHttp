@@ -8,37 +8,35 @@ import (
 
 type Client struct {
 	Conn net.Conn
-	WaitChan chan string
+	WaitChan chan map[string]string
 }
 
 type ParseRequest interface {
-	parseRequest(requestStr string) map[string]string
+	ParseRequest(requestBytes []byte) map[string]string
 }
 
-func (client *Client) GetRequest() {
+func (client *Client) GetRequest(request ParseRequest) {
+	var requestBytes []byte
 	requestByte := make([]byte, 512)
-	requestStr := ""
-	contentLength := 0;
 
 	for {
 		len, err := client.Conn.Read(requestByte)
-		fmt.Println("len", len, err, client.Conn.RemoteAddr())
 		if err != nil {
 			if err == io.EOF  {
 				break
 			}
-			fmt.Println("err:",err)
+			fmt.Println(err)
 		}
-
-		contentLength += len
-		requestStr += string(requestByte)
 
 		if len < 512 {
+			requestBytes = append(requestBytes, requestByte[:len]...)
 			break
 		}
+		requestBytes = append(requestBytes, requestByte...)
 	}
 
-	client.WaitChan <- requestStr
+	requestData := request.ParseRequest(requestBytes)
+	client.WaitChan <- requestData
 }
 
 func (client *Client) SetReponse() {
@@ -58,10 +56,9 @@ func (client *Client) SetReponse() {
 	responseStr += "\r\n"
 	responseStr += "你好\r\n"
 
-	fmt.Println([]byte(responseStr))
-	len, err := client.Conn.Write([]byte(responseStr))
+	_, err := client.Conn.Write([]byte(responseStr))
 	if err != nil {
-		fmt.Println("err:", err)
+		fmt.Println(err)
 	}
-	fmt.Println(len, requestStr)
+	fmt.Println(requestStr)
 }

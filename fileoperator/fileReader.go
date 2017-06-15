@@ -2,7 +2,6 @@ package fileoperator
 
 import (
 	"os"
-	"io"
 )
 
 func ReadAll (filePath string ) (readData []byte,err error) {
@@ -12,18 +11,10 @@ func ReadAll (filePath string ) (readData []byte,err error) {
 	}
 
 	defer filePointer.Close()
-	readBytes := make([]byte, 512)
-	for  {
-		len, err := filePointer.Read(readBytes)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, err
-		}
 
-		readData = append(readData, readBytes[:len]...)
-	}
+	byteSize, err := GetFileSize(filePointer)
 
+	readData = make([]byte, byteSize)
+	_, err = filePointer.Read(readData)
 	return
 }

@@ -4,6 +4,11 @@ import (
 	"github.com/go-yaml/yaml"
 )
 
+type ConfigureLoader interface {
+	LoadConfigure(configData []byte) (map[interface{}]interface{}, error)
+	SetConfigure(key interface{}, setConfigData interface{}) error
+}
+
 type YamlLoader struct {
 }
 
