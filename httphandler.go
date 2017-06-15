@@ -7,29 +7,36 @@ import (
 	"os"
 	"fileoperator"
 	"errors"
+	"strconv"
+	"httpparse"
+	"runtime"
 )
 
 var ConfigData map[interface{}]interface{}
-var ConfigLoader ConfigureLoader
-
-type ConfigureLoader interface {
-	LoadConfigure(configData []byte) (map[interface{}]interface{}, error)
-	SetConfigure(key interface{}, setConfigData interface{}) error
-}
+var configLoader configloader.ConfigureLoader
+var parser httpserver.ParseRequest
 
 func main() {
-	setConfigureLoader()
 	configBytes, errMsg := getConfigBytes();
 	if errMsg != nil {
 		fmt.Println(errMsg)
 		os.Exit(1)
 	}
 
-	errMsg = LoadConfigure(configBytes)
+	errMsg = loadConfigure(configBytes)
 	if errMsg != nil {
 		fmt.Println(errMsg)
 		os.Exit(2)
 	}
+
+	errMsg = savePidFile()
+	if errMsg != nil {
+		fmt.Println(errMsg)
+		os.Exit(3)
+	}
+
+	setParser()
+	setProcsNum()
 
 	server := httpserver.StartServer(ConfigData["address"].(string), int(ConfigData["port"].(int)))
 	err := server.Connect()
@@ -41,11 +48,11 @@ func main() {
 	for  {
 		client, err := server.GetClient()
 		if (err != nil) {
-			fmt.Println(err, 123)
+			fmt.Println(err)
 		}
 
 		go func() {
-			client.GetRequest()
+			client.GetRequest(parser)
 		}()
 
 		go func() {
@@ -54,7 +61,26 @@ func main() {
 	}
 }
 
+func savePidFile() (err error) {
+	pid := getPid()
+	filePath := ConfigData["pidfile"].(string)
+	err = savePid(filePath, pid)
+	return
+}
+
+
+func getPid () (pid int) {
+	pid = os.Getpid()
+	return
+}
+
+func savePid(filePath string, pid int) (err error) {
+	err = fileoperator.WriteIn(filePath, strconv.Itoa(pid))
+	return
+}
+
 func getConfigBytes() (readBytes[]byte, err error) {
+	setConfigureLoader()
 	configPath, err := getConfigPath()
 	if err != nil {
 		return
@@ -78,15 +104,28 @@ func readConfig(configPath string) (readBytes[]byte, err error) {
 }
 
 func setConfigureLoader() {
-	ConfigLoader = &configloader.YamlLoader{}
+	configLoader = &configloader.YamlLoader{}
 }
 
-func LoadConfigure(configBytes []byte) (err error) {
-	ConfigData, err = ConfigLoader.LoadConfigure(configBytes)
+func loadConfigure(configBytes []byte) (err error) {
+	ConfigData, err = configLoader.LoadConfigure(configBytes)
 	return
 }
 
+func setParser() {
+	parser = &httpparse.HttpParse{}
+}
+
+func setProcsNum() {
+	procsNum := ConfigData["procss"].(int)
+	if procsNum == 0 {
+		procsNum = runtime.NumCPU() / 2
+	}
+
+	runtime.GOMAXPROCS(procsNum)
+}
+
 func SetConfigure(key interface{}, setConfigData interface{}) (err error) {
-	err = ConfigLoader.SetConfigure(key, setConfigData)
+	err = configLoader.SetConfigure(key, setConfigData)
 	return
 }

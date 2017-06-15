@@ -1,3 +1,9 @@
 #连接参数
 address: 127.0.0.1
 port: 8090
+
+#进程ID保存文件
+pidfile: ./httpserver.pid
+
+#并行线程数
+procss: 0
