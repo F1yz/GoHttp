@@ -7,15 +7,15 @@ import (
 	"strconv"
 	"runtime"
 
-	"github.com/F1yz/GoHttp/httpserver"
+	"github.com/F1yz/GoHttp/http"
 	"github.com/F1yz/GoHttp/configloader"
 	"github.com/F1yz/GoHttp/fileoperator"
-	"github.com/F1yz/GoHttp/httpparse"
+	//"github.com/F1yz/GoHttp/httpparse"
 )
 
 var ConfigData map[interface{}]interface{}
 var configLoader configloader.ConfigureLoader
-var parser httpserver.ParseRequest
+var parser http.ParseRequest
 
 func main() {
 	configBytes, errMsg := getConfigBytes();
@@ -39,7 +39,7 @@ func main() {
 	setParser()
 	setProcsNum()
 
-	server := httpserver.StartServer(ConfigData["address"].(string), int(ConfigData["port"].(int)))
+	server := http.StartServer(ConfigData["address"].(string), int(ConfigData["port"].(int)))
 	err := server.Connect()
 	if err != nil {
 		fmt.Println(err)
@@ -114,7 +114,7 @@ func loadConfigure(configBytes []byte) (err error) {
 }
 
 func setParser() {
-	parser = &httpparse.HttpParse{}
+	parser = &http.HttpParser{}
 }
 
 func setProcsNum() {
