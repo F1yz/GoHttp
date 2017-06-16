@@ -1,4 +1,8 @@
 # GoHttp
+
+## First thing go first
+**请先保证项目目录为: $GOPATH/src/github/F1yz/GoHttp**
+
 ## Just in case
 
 ### 编译包：
