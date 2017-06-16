@@ -17,5 +17,5 @@ type Cookie struct {
 
 // for value of Set-Cookie header
 func (c *Cookie) String() string {
-	
+	return ""
 }
