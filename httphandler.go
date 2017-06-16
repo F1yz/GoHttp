@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"httpserver"
-	"configloader"
 	"os"
-	"fileoperator"
 	"errors"
 	"strconv"
-	"httpparse"
 	"runtime"
+
+	"github.com/F1yz/GoHttp/httpserver"
+	"github.com/F1yz/GoHttp/configloader"
+	"github.com/F1yz/GoHttp/fileoperator"
+	"github.com/F1yz/GoHttp/httpparse"
 )
 
 var ConfigData map[interface{}]interface{}
