@@ -29,7 +29,8 @@ func (server *server) GetClient() (client *Client, err error) {
 		return
 	}
 
-	connChan := make(chan map[string]string)
+	//connChan := make(chan map[string]string)
+	connChan := make(chan *Request)
 	client = &Client{clientConn, connChan}
 	return
 }

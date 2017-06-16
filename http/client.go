@@ -4,12 +4,15 @@ package http
 import (
 	"net"
 	"fmt"
-	"io"
+	//"io"
+	"bufio"
+	//"strings"
 )
 
 type Client struct {
 	Conn net.Conn
-	WaitChan chan map[string]string
+	//WaitChan chan map[string]string
+	WaitChan chan *Request
 }
 
 type ParseRequest interface {
@@ -17,27 +20,34 @@ type ParseRequest interface {
 }
 
 func (client *Client) GetRequest(request ParseRequest) {
-	var requestBytes []byte
-	requestByte := make([]byte, 512)
+	//var requestBytes []byte
+	//requestByte := make([]byte, 512)
 
-	for {
-		len, err := client.Conn.Read(requestByte)
-		if err != nil {
-			if err == io.EOF  {
-				break
-			}
-			fmt.Println(err)
-		}
+	//for {
+	//	len, err := client.Conn.Read(requestByte)
+	//	if err != nil {
+	//		if err == io.EOF  {
+	//			break
+	//		}
+	//		fmt.Println(err)
+	//	}
+	//
+	//	if len < 512 {
+	//		requestBytes = append(requestBytes, requestByte[:len]...)
+	//		break
+	//	}
+	//	requestBytes = append(requestBytes, requestByte...)
+	//}
 
-		if len < 512 {
-			requestBytes = append(requestBytes, requestByte[:len]...)
-			break
-		}
-		requestBytes = append(requestBytes, requestByte...)
-	}
+	br := bufio.NewReader(client.Conn)
 
-	requestData := request.ParseRequest(requestBytes)
-	client.WaitChan <- requestData
+	//var requestData = map[string]string {}
+
+
+	req := ReadRequest(br)
+//	requestData := request.ParseRequest(requestBytes)
+	client.WaitChan <- req
+	//client.WaitChan <- requestData
 }
 
 func (client *Client) SetReponse() {
