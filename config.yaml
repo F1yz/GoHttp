@@ -7,3 +7,8 @@ pidfile: ./httpserver.pid
 
 #并行线程数
 procss: 0
+
+#连接有效时间
+#时间单位为秒
+request_read_buffer: 512
+life_time: 10

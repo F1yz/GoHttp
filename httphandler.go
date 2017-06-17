@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"httpparse"
 	"runtime"
+	"time"
 )
 
 var ConfigData map[interface{}]interface{}
@@ -46,7 +47,7 @@ func main() {
 	}
 
 	for  {
-		client, err := server.GetClient()
+		client, err := server.GetClient(ConfigData["request_read_buffer"].(int), time.Duration(ConfigData["life_time"].(int)))
 		if (err != nil) {
 			fmt.Println(err)
 		}
