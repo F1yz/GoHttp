@@ -2,6 +2,7 @@ package httpparse
 
 import (
 	"strings"
+	"fmt"
 )
 
 type HttpParse struct {
@@ -21,6 +22,7 @@ func (httpParse *HttpParse) ParseRequest(requestBytes []byte) map[string]string 
 		}
 
 		if val == "" {
+			parseData["body"] = strings.Join(requestArr[key + 1:], "\r\n")
 			break
 		}
 
@@ -28,5 +30,6 @@ func (httpParse *HttpParse) ParseRequest(requestBytes []byte) map[string]string 
 		parseData[requestRow[0]] = requestRow[1]
 	}
 
+	fmt.Println(parseData)
 	return parseData
 }

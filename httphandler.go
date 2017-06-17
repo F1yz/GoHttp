@@ -6,16 +6,16 @@ import (
 	"errors"
 	"strconv"
 	"runtime"
-
-	"github.com/F1yz/GoHttp/http"
-	"github.com/F1yz/GoHttp/configloader"
-	"github.com/F1yz/GoHttp/fileoperator"
-	//"github.com/F1yz/GoHttp/httpparse"
+	"configloader"
+	"time"
+	"fileoperator"
+	"httpserver"
+	"httpparse"
 )
 
 var ConfigData map[interface{}]interface{}
 var configLoader configloader.ConfigureLoader
-var parser http.ParseRequest
+var parser *httpparse.HttpParse
 
 func main() {
 	configBytes, errMsg := getConfigBytes();
@@ -39,7 +39,7 @@ func main() {
 	setParser()
 	setProcsNum()
 
-	server := http.StartServer(ConfigData["address"].(string), int(ConfigData["port"].(int)))
+	server := httpserver.StartServer(ConfigData["address"].(string), int(ConfigData["port"].(int)))
 	err := server.Connect()
 	if err != nil {
 		fmt.Println(err)
@@ -47,7 +47,7 @@ func main() {
 	}
 
 	for  {
-		client, err := server.GetClient()
+		client, err := server.GetClient(ConfigData["request_read_buffer"].(int), time.Duration(ConfigData["life_time"].(int)))
 		if (err != nil) {
 			fmt.Println(err)
 		}
@@ -114,7 +114,7 @@ func loadConfigure(configBytes []byte) (err error) {
 }
 
 func setParser() {
-	parser = &http.HttpParser{}
+	parser = &httpparse.HttpParse{}
 }
 
 func setProcsNum() {

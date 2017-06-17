@@ -3,6 +3,7 @@ package httpserver
 import (
 	"net"
 	"strconv"
+	"time"
 )
 
 type server struct{
@@ -21,14 +22,13 @@ func (server *server) Connect() (errMsg error){
 	return
 }
 
-func (server *server) GetClient() (client *Client, err error) {
+func (server *server) GetClient(readBuffer int, lifeTime time.Duration) (client *Client, err error) {
 	clientConn, err := server.conn.Accept();
 	if err != nil {
 		client = nil
 		return
 	}
 
-	connChan := make(chan map[string]string)
-	client = &Client{clientConn, connChan}
+	client = NewClient(clientConn, readBuffer, lifeTime)
 	return
 }
