@@ -4,11 +4,22 @@ import (
 	"net"
 	"fmt"
 	"io"
+	"time"
 )
 
 type Client struct {
 	Conn net.Conn
+	readBuffer int
+	lifeTime time.Duration
 	WaitChan chan map[string]string
+}
+
+func NewClient(conn net.Conn, readBuffer int, lifeTime time.Duration) (client *Client) {
+	connChan := make(chan map[string]string)
+	client = &Client{conn, readBuffer, lifeTime, connChan}
+	client.Conn.SetReadDeadline(time.Now().Add(time.Second * lifeTime))
+
+	return
 }
 
 type ParseRequest interface {
@@ -17,7 +28,7 @@ type ParseRequest interface {
 
 func (client *Client) GetRequest(request ParseRequest) {
 	var requestBytes []byte
-	requestByte := make([]byte, 512)
+	requestByte := make([]byte, client.readBuffer)
 
 	for {
 		len, err := client.Conn.Read(requestByte)
@@ -28,11 +39,12 @@ func (client *Client) GetRequest(request ParseRequest) {
 			fmt.Println(err)
 		}
 
-		if len < 512 {
-			requestBytes = append(requestBytes, requestByte[:len]...)
+		requestBytes = append(requestBytes, requestByte[:len]...)
+
+		if (len < client.readBuffer) {
+			client.Conn.SetReadDeadline(time.Time{})
 			break
 		}
-		requestBytes = append(requestBytes, requestByte...)
 	}
 
 	requestData := request.ParseRequest(requestBytes)
@@ -58,7 +70,6 @@ func (client *Client) SetReponse() {
 
 	_, err := client.Conn.Write([]byte(responseStr))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err, requestStr)
 	}
-	fmt.Println(requestStr)
 }
