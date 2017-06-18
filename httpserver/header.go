@@ -1,4 +1,4 @@
-package http
+package httpserver
 
 // header的值可能有多个，如Accept-Encoding: gzip, deflate, sdch, br
 type Header map[string][]string

@@ -2,11 +2,14 @@ package http
 
 import (
 	"io"
+	"fmt"
 )
 
 type Request struct {
 	// Http方法
 	Method string
+
+	Proto string
 
 	Header Header
 
@@ -15,4 +18,9 @@ type Request struct {
 	Host string
 
 	RequestURI string
+}
+
+func (req *Request) String() string {
+	return fmt.Sprintf("Method: %s, Proto: %s, Host: %s, requestURI: %s",
+		req.Method, req.Proto, req.Host, req.RequestURI)
 }

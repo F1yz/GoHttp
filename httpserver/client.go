@@ -11,11 +11,12 @@ type Client struct {
 	Conn net.Conn
 	readBuffer int
 	lifeTime time.Duration
-	WaitChan chan map[string]string
+	WaitChan chan *Request  /*map[string]string*/
 }
 
 func NewClient(conn net.Conn, readBuffer int, lifeTime time.Duration) (client *Client) {
-	connChan := make(chan map[string]string)
+	//connChan := make(chan map[string]string)
+	connChan := make(chan *Request)
 	client = &Client{conn, readBuffer, lifeTime, connChan}
 	client.Conn.SetReadDeadline(time.Now().Add(time.Second * lifeTime))
 
@@ -23,7 +24,7 @@ func NewClient(conn net.Conn, readBuffer int, lifeTime time.Duration) (client *C
 }
 
 type ParseRequest interface {
-	ParseRequest(requestBytes []byte) map[string]string
+	ParseRequest(requestBytes []byte) *Request
 }
 
 func (client *Client) GetRequest(request ParseRequest) {
