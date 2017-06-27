@@ -11,6 +11,8 @@ import (
 	"fileoperator"
 	"httpserver"
 	"httpparse"
+	"compress/gzip"
+	"bytes"
 )
 
 var ConfigData map[interface{}]interface{}
@@ -25,6 +27,8 @@ func main() {
 	}
 
 	errMsg = loadConfigure(configBytes)
+	fmt.Println(ConfigData["webs"])
+	fmt.Println(ConfigData["php_cgi"])
 	if errMsg != nil {
 		fmt.Println(errMsg)
 		os.Exit(2)
@@ -57,7 +61,8 @@ func main() {
 		}()
 
 		go func() {
-			client.SetReponse()
+			fileHandle := FileHandle{"E:\\GoProject\\httpserver\\web\\web1"}
+			client.SetReponse(fileHandle)
 		}()
 	}
 }
@@ -130,3 +135,25 @@ func SetConfigure(key interface{}, setConfigData interface{}) (err error) {
 	err = configLoader.SetConfigure(key, setConfigData)
 	return
 }
+
+type FileHandle struct {
+	WebRoot string
+}
+
+func (fileHandle FileHandle) HandleMethod(request *httpserver.Request) (content []byte, err error) {
+	fullPath := fileHandle.WebRoot + request.RequestURI
+	content, err = fileoperator.ReadAll(fullPath)
+
+	var b bytes.Buffer
+	gzipWriter := gzip.NewWriter(&b)
+	defer gzipWriter.Close()
+
+	fmt.Println(content)
+	gzipWriter.Write(content)
+	gzipWriter.Flush()
+
+	content = b.Bytes()
+	fmt.Println(content)
+	return
+}
+
