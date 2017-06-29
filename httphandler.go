@@ -11,6 +11,9 @@ import (
 	"fileoperator"
 	"httpserver"
 	"httpparse"
+	"compress/gzip"
+	"bytes"
+	"net"
 )
 
 var ConfigData map[interface{}]interface{}
@@ -25,6 +28,8 @@ func main() {
 	}
 
 	errMsg = loadConfigure(configBytes)
+	fmt.Println(ConfigData["webs"])
+	fmt.Println(ConfigData["php_cgi"])
 	if errMsg != nil {
 		fmt.Println(errMsg)
 		os.Exit(2)
@@ -57,7 +62,8 @@ func main() {
 		}()
 
 		go func() {
-			client.SetReponse()
+			httpHandle := HttpHandle{"E:\\GoProject\\httpserver\\web\\web1"}
+			client.SetReponse(httpHandle)
 		}()
 	}
 }
@@ -128,5 +134,57 @@ func setProcsNum() {
 
 func SetConfigure(key interface{}, setConfigData interface{}) (err error) {
 	err = configLoader.SetConfigure(key, setConfigData)
+	return
+}
+
+type HttpHandle struct {
+	WebRoot string
+}
+
+func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content []byte, err error) {
+	content, err = httpHandle.FileHandle(request)
+
+	content = httpHandle.GzipEncoding(content)
+
+	return
+}
+
+func (httpHandle HttpHandle) FileHandle(request *httpserver.Request) (content []byte, err error) {
+	fullPath := httpHandle.WebRoot + request.RequestURI
+	content, err = fileoperator.ReadAll(fullPath)
+
+	return
+}
+
+func (httpHandle HttpHandle) CgiHandle(request *httpserver.Request) (content []byte, err error) {
+	cgiConn, err := net.Dial("tcp", "127.0.0.1:9001")
+	cgiConn.SetReadDeadline(time.Now().Add(3 * time.Second))
+	cgiConn.Write([]byte("123"))
+
+	cgiContent := make([]byte, 512)
+	var n int
+	for {
+		n, err = cgiConn.Read(cgiContent)
+		if err != nil || n <= 0 {
+			cgiConn.SetReadDeadline(time.Time{})
+			break
+		}
+
+		content = append(content, cgiContent...)
+	}
+
+	return
+}
+
+func (httpHandle HttpHandle) GzipEncoding(content []byte) (gzipContent []byte) {
+	var b bytes.Buffer
+	gzipWriter := gzip.NewWriter(&b)
+	defer gzipWriter.Close()
+
+	gzipWriter.Write(content)
+	gzipWriter.Flush()
+
+	gzipContent = b.Bytes()
+
 	return
 }

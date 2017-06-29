@@ -12,3 +12,21 @@ procss: 0
 #时间单位为秒
 request_read_buffer: 512
 life_time: 10
+
+#CGI连接设置
+php_cgi: ['127.0.0.1:9000']
+
+webs:
+  web1:
+    web_root: E:\GoProject\httpserver\web\web1
+    host: www.zb.com
+    default: index.html,index.php
+    router: {
+      .*\.php$: {
+        pass: php_cgi,
+     },
+     .*: {
+        etag: on,
+        expires: 60
+     }
+    }

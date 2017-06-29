@@ -2,41 +2,33 @@ package httpparse
 
 import (
 	"strings"
-	"fmt"
-	"httpserver"
 )
 
 type HttpParse struct {
 }
 
-func (httpParse *HttpParse) ParseRequest(requestBytes []byte) *httpserver.Request {
+func (httpParse *HttpParse) ParseRequest(requestBytes []byte) map[string]interface{} {
 	requestStr := string(requestBytes)
 	requestArr := strings.Split(requestStr, "\r\n")
 	requestRow := make([]string, 5)
 
-	var req = new(httpserver.Request)
-
 	requestLine := requestArr[0]
+	requestData := make(map[string]interface{})
+	requestData["Method"], requestData["RequestURI"], requestData["Proto"] = parseRequestLine(requestLine)
 
-
-	req.Method, req.RequestURI, req.Proto = parseRequestLine(requestLine)
-	req.Header = httpserver.Header{}
-
-	headersAndBody := requestArr[1:]
-
-	for key, val := range headersAndBody {
+	for key := 1; key < len(requestArr); key ++ {
+		val := requestArr[key]
 		if val == "" {
-			req.Body = strings.Join(requestArr[key + 1:], "\r\n")
+			requestData["Body"] = strings.Join(requestArr[key + 1:], "\r\n")
 			break
 		}
 
 		// parse headers, header value not trimmed yet.
 		requestRow = strings.Split(val, ":")
-		req.Header.Add(requestRow[0], requestRow[1])
+		requestData[requestRow[0]] = requestRow[1]
 	}
 
-	fmt.Println(req)
-	return req
+	return requestData
 }
 
 func parseRequestLine(line string) (method, requestURI, proto string)  {
