@@ -12,7 +12,7 @@ type Request struct {
 
 	Header Header
 
-	Body string // string or []bytes ?
+	Body []byte // string or []bytes ?
 
 	Host string
 
@@ -25,12 +25,12 @@ func NewRequest(requestData map[string]interface{}) (request *Request) {
 	request.Proto = requestData["Proto"].(string)
 	request.RequestURI = requestData["RequestURI"].(string)
 
-	body, err := requestData["Body"].(string)
+	body, err := requestData["Body"].([]byte)
 	if err {
 		request.Body = body
 	}
 
-	host, err := requestData["Body"].(string)
+	host, err := requestData["Host"].(string)
 	if err {
 		request.Host = host
 	}

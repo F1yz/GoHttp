@@ -65,7 +65,6 @@ func (client *Client) SetReponse(handle HttpHandle) {
 	}()
 
 	requestStr := <-client.WaitChan
-	fmt.Println(requestStr)
 	content, err :=handle.HandleMethod(requestStr)
 	responseStr := "HTTP/1.1 200 OK\r\n"
 	responseStr += "Expires:Tue, 13 Jun 2017 11:57:00 GMT\r\n"

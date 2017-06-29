@@ -13,6 +13,7 @@ import (
 	"httpparse"
 	"compress/gzip"
 	"bytes"
+	"net"
 )
 
 var ConfigData map[interface{}]interface{}
@@ -61,8 +62,8 @@ func main() {
 		}()
 
 		go func() {
-			fileHandle := FileHandle{"E:\\GoProject\\httpserver\\web\\web1"}
-			client.SetReponse(fileHandle)
+			httpHandle := HttpHandle{"E:\\GoProject\\httpserver\\web\\web1"}
+			client.SetReponse(httpHandle)
 		}()
 	}
 }
@@ -136,24 +137,54 @@ func SetConfigure(key interface{}, setConfigData interface{}) (err error) {
 	return
 }
 
-type FileHandle struct {
+type HttpHandle struct {
 	WebRoot string
 }
 
-func (fileHandle FileHandle) HandleMethod(request *httpserver.Request) (content []byte, err error) {
-	fullPath := fileHandle.WebRoot + request.RequestURI
+func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content []byte, err error) {
+	content, err = httpHandle.FileHandle(request)
+
+	content = httpHandle.GzipEncoding(content)
+
+	return
+}
+
+func (httpHandle HttpHandle) FileHandle(request *httpserver.Request) (content []byte, err error) {
+	fullPath := httpHandle.WebRoot + request.RequestURI
 	content, err = fileoperator.ReadAll(fullPath)
 
+	return
+}
+
+func (httpHandle HttpHandle) CgiHandle(request *httpserver.Request) (content []byte, err error) {
+	cgiConn, err := net.Dial("tcp", "127.0.0.1:9001")
+	cgiConn.SetReadDeadline(time.Now().Add(3 * time.Second))
+	cgiConn.Write([]byte("123"))
+
+	cgiContent := make([]byte, 512)
+	var n int
+	for {
+		n, err = cgiConn.Read(cgiContent)
+		if err != nil || n <= 0 {
+			cgiConn.SetReadDeadline(time.Time{})
+			break
+		}
+
+		content = append(content, cgiContent...)
+	}
+
+	return
+}
+
+func (httpHandle HttpHandle) GzipEncoding(content []byte) (gzipContent []byte) {
 	var b bytes.Buffer
 	gzipWriter := gzip.NewWriter(&b)
 	defer gzipWriter.Close()
 
-	fmt.Println(content)
 	gzipWriter.Write(content)
 	gzipWriter.Flush()
 
-	content = b.Bytes()
-	fmt.Println(content)
+	gzipContent = b.Bytes()
+
 	return
 }
-
