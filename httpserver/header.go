@@ -15,6 +15,14 @@ func (h Header) Get(key string) string  {
 	return ""
 }
 
+func (h Header) GetAll(key string) []string {
+	if v := h[key]; len(v) > 0 {
+		return v
+	}
+
+	return []string{}
+}
+
 func (h Header) Set(key string, value string)  {
 	h[key] = []string{value}
 }
