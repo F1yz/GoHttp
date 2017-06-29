@@ -18,7 +18,7 @@ php_cgi: ['127.0.0.1:9000']
 
 webs:
   web1:
-    web_root: E:\GoProject\httpserver\web\web1
+    web_root: G:\code\godoc
     host: www.zb.com
     default: index.html,index.php
     router: {

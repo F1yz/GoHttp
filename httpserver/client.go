@@ -58,7 +58,7 @@ func (client *Client) GetRequest(request ParseRequest) {
 	client.WaitChan <- requestStruct
 }
 
-func (client *Client) SetReponse(handle HttpHandle) {
+func (client *Client) SetResponse(handle HttpHandle) {
 	defer func() {
 		client.Conn.Close()
 		close(client.WaitChan)
@@ -66,18 +66,7 @@ func (client *Client) SetReponse(handle HttpHandle) {
 
 	requestStr := <-client.WaitChan
 	content, err :=handle.HandleMethod(requestStr)
-	responseStr := "HTTP/1.1 200 OK\r\n"
-	responseStr += "Expires:Tue, 13 Jun 2017 11:57:00 GMT\r\n"
-	responseStr += "Content-Type:text/html;charset=utf-8\r\n"
-	responseStr += "Content-Encoding:gzip\r\n"
-	responseStr += "Cache-Control:max-age=120\r\n"
-	responseStr += "Age:79\r\n"
-	//responseStr += "Transfer-Encoding:chunked\r\n"
-	responseStr += "\r\n"
-
-	responseBytes := []byte(responseStr)
-	responseBytes = append(responseBytes, content...)
-	_, err = client.Conn.Write(responseBytes)
+	_, err = client.Conn.Write(content)
 	if err != nil {
 		fmt.Println(err, requestStr)
 	}

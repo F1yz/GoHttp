@@ -18,3 +18,12 @@ func ReadAll (filePath string ) (readData []byte,err error) {
 	_, err = filePointer.Read(readData)
 	return
 }
+
+// 这个方法似乎是有问题的
+func FileExists(filePath string) bool  {
+	if _, err := os.Stat(filePath); err == nil {
+		return true
+	}
+
+	return false
+}
