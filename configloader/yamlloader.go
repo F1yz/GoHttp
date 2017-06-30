@@ -5,8 +5,8 @@ import (
 )
 
 type ConfigureLoader interface {
-	LoadConfigure(configData []byte) (map[string]interface{}, error)
 	SetConfigure(key string, setConfigData interface{}) error
+	LoadConfigure(configData []byte) (map[string]interface{}, error)
 }
 
 type YamlLoader struct {

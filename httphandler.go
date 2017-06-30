@@ -26,7 +26,7 @@ var configLoader configloader.ConfigureLoader
 var parser *httpparse.HttpParse
 
 func main() {
-	configBytes, errMsg := getConfigBytes();
+	configBytes, errMsg := getConfigBytes()
 	if errMsg != nil {
 		fmt.Println(errMsg)
 		os.Exit(1)
@@ -35,8 +35,10 @@ func main() {
 	errMsg = loadConfigure(configBytes)
 
 	//fmt.Println(ConfigData)
-	hostInfo := ConfigData["webs"]
-	fmt.Println(hostInfo)
+	hostInfo := ConfigData["vhosts"]
+
+	h := hostInfo.([]interface{})
+	fmt.Println(h[0])
 
 	fmt.Println(ConfigData["php_cgi"])
 	if errMsg != nil {

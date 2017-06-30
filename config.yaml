@@ -16,9 +16,35 @@ life_time: 10
 #CGI连接设置
 php_cgi: ['127.0.0.1:9000']
 
+# 虚拟主机列表配置
+# 因为是个列表，所以用 "-", 同样的，内部的路由规则为规则列表，所以也用 "-", 个人理解
+vhosts:
+    - web_root: G:\code\godoc
+      host: www.haha.fuck
+      router:
+          - pattern: .*\.php$
+            rules:
+                - pass: php_cgi
+                  expires: 60
+          - pattern: .*
+            rules:
+                - etag: on
+                  expires: 60
+
+    - web_root: G:\code\godoc
+      host: www.haha.fuck
+      router:
+          - pattern: .*\.php$
+            rules:
+                - pass: php_cgi
+                  expires: 60
+          - pattern: .*
+            rules:
+                - etag: on
+                  expires: 60
+
 webs:
-  web1:
-    web_root: G:\code\godoc
+  - web_root: G:\code\godoc
     host: www.zb.com
     default: index.html,index.php
     router: {
