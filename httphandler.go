@@ -69,7 +69,7 @@ func main() {
 		}()
 
 		go func() {
-			httpHandle := HttpHandle{"G:\\code\\godoc"}
+			httpHandle := HttpHandle{"E:\\code\\godoc"}
 			client.SetResponse(httpHandle)
 		}()
 	}
@@ -190,8 +190,9 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 		return nil, err
 	}
 
+	respHeader.Set("Server", "f1yz/0.0.1")
 	respHeader.Set("Last-Modified", fileInfo.ModTime().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
-
+	respHeader.Set("Expires", fileInfo.ModTime().Add(time.Duration(3600000)).Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 
 	// TODO: 断点续传？？？？
 	// parse mimeType
@@ -206,10 +207,7 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 	response.SetHeaders(respHeader)
 
 	if httpserver.StatusNotModified != response.StatusCode {
-
 		content = httpHandle.GzipEncoding(content)
-
-
 		response.SetBody(content)
 	}
 
