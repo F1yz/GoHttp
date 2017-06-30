@@ -21,7 +21,7 @@ import (
 	"path"
 )
 
-var ConfigData map[interface{}]interface{}
+var ConfigData map[string]interface{}
 var configLoader configloader.ConfigureLoader
 var parser *httpparse.HttpParse
 
@@ -141,7 +141,7 @@ func setProcsNum() {
 	runtime.GOMAXPROCS(procsNum)
 }
 
-func SetConfigure(key interface{}, setConfigData interface{}) (err error) {
+func SetConfigure(key string, setConfigData interface{}) (err error) {
 	err = configLoader.SetConfigure(key, setConfigData)
 	return
 }
@@ -265,7 +265,12 @@ func (httpHandle HttpHandle) WriteResponse(response *httpserver.Response) (conte
 }
 
 func (httpHandle HttpHandle) GetAbsoluteFilePath(request *httpserver.Request) string {
-	return httpHandle.WebRoot + request.RequestURI
+
+	uri := request.RequestURI
+	if "/" == request.RequestURI {
+		uri = "/index.html"
+	}
+	return httpHandle.WebRoot + uri
 }
 
 func (httpHandle HttpHandle) FileHandle(request *httpserver.Request) (content []byte, err error) {
