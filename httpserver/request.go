@@ -2,6 +2,8 @@ package httpserver
 
 import (
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 type Request struct {
@@ -47,6 +49,41 @@ func NewRequest(requestData map[string]interface{}) (request *Request) {
 	}
 
 	return
+}
+
+func (req *Request) IsRangeRequest() bool {
+	if rangeHeader := req.Header.Get("Range"); rangeHeader != "" {
+		return true
+	}
+
+	return false
+}
+
+func (req *Request) GetStartEndRange() []int  {
+	rangeHeader := req.Header.Get("Range")
+	directives := strings.Split(strings.Trim(rangeHeader, " "), " ")
+
+	startEndRange := directives[1]
+	rangeInfo := strings.TrimRight(startEndRange, ",")
+	rangeArray := strings.Split(rangeInfo, "-")
+
+	if len(rangeArray) == 1 {
+		return []int{ 999, 0,}
+	}
+
+	length := 2
+	if rangeArray[1] == "" {
+		length = 1
+	}
+
+	rangeVal := make([]int, length)
+
+	for i := 0; i < len(rangeVal); i++ {
+		rangeIntVal, _ := strconv.Atoi(rangeArray[i])
+		rangeVal[i] = rangeIntVal
+	}
+
+	return rangeVal
 }
 
 func (req *Request) String() string {
