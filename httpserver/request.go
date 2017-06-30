@@ -49,6 +49,14 @@ func NewRequest(requestData map[string]interface{}) (request *Request) {
 	return
 }
 
+func (req *Request) IsRangeRequest() bool {
+	if rangeHeader := req.Header.Get("Range"); rangeHeader != "" {
+		return true
+	}
+
+	return false
+}
+
 func (req *Request) String() string {
 	return fmt.Sprintf("Method: %s, Proto: %s, Host: %s, requestURI: %s, headers: %q",
 		req.Method, req.Proto, req.Host, req.RequestURI, req.Header)

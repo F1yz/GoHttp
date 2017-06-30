@@ -34,8 +34,10 @@ func main() {
 
 	errMsg = loadConfigure(configBytes)
 
+	//fmt.Println(ConfigData)
 	hostInfo := ConfigData["webs"]
 	fmt.Println(hostInfo)
+
 	fmt.Println(ConfigData["php_cgi"])
 	if errMsg != nil {
 		fmt.Println(errMsg)
@@ -194,7 +196,18 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 	respHeader.Set("Last-Modified", fileInfo.ModTime().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 	respHeader.Set("Expires", fileInfo.ModTime().Add(time.Duration(3600000)).Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 
+	// say we accept range request
+	respHeader.Set("Accept-Ranges", "bytes")
+	if request.IsRangeRequest() {
+
+	}
+
 	// TODO: 断点续传？？？？
+
+	// isRangeRequest?
+	// handleRangeRequest
+
+
 	// parse mimeType
 	if mimeType := mime.TypeByExtension(path.Ext(filePath)); mimeType != "" {
 		// set response header.
