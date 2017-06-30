@@ -71,7 +71,7 @@ func main() {
 		}()
 
 		go func() {
-			httpHandle := HttpHandle{"E:\\code\\godoc"}
+			httpHandle := HttpHandle{"G:\\code\\godoc"}
 			client.SetResponse(httpHandle)
 		}()
 	}
@@ -181,6 +181,7 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 	respHeader.Set("ETag", serverSideETag)
 
 	fp, err := os.OpenFile(filePath, os.O_RDONLY, 444)
+	defer fp.Close()
 
 	if err != nil {
 		return nil, err
@@ -196,17 +197,39 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 	respHeader.Set("Last-Modified", fileInfo.ModTime().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 	respHeader.Set("Expires", fileInfo.ModTime().Add(time.Duration(3600000)).Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 
+
+	//if httpHandle.IsGzipEnabled() {
+	//	content = httpHandle.GzipEncoding(content)
+	//	respHeader.Set("Content-Encoding", "gzip")
+	//}
+
 	// say we accept range request
 	respHeader.Set("Accept-Ranges", "bytes")
 	if request.IsRangeRequest() {
+		fileSize := len(content)
 
+		startEndRange := request.GetStartEndRange()
+		expectedStart := 0
+		expectedEnd := 0
+
+		fmt.Println("YYYYY")
+		fmt.Println(startEndRange)
+		if len(startEndRange) == 2 {
+			expectedStart = startEndRange[0]
+			expectedEnd = startEndRange[1]
+		} else {
+			expectedStart = startEndRange[0]
+			expectedEnd = fileSize
+		}
+
+		if expectedEnd < expectedStart || expectedEnd > fileSize {
+			return httpHandle.RangeNotSatisfiable(), nil
+		}
+
+		content = content[expectedStart:expectedEnd]
+		response.StatusCode = httpserver.StatusPartialContent
+		respHeader.Set("Content-Range", fmt.Sprintf("bytes %v-%v/%v", expectedStart, expectedEnd, fileSize))
 	}
-
-	// TODO: 断点续传？？？？
-
-	// isRangeRequest?
-	// handleRangeRequest
-
 
 	// parse mimeType
 	if mimeType := mime.TypeByExtension(path.Ext(filePath)); mimeType != "" {
@@ -216,15 +239,19 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 		respHeader.Set("Content-Type", "application/octet-stream")
 	}
 
-	respHeader.Set("Content-Encoding", "gzip")
+
 	response.SetHeaders(respHeader)
 
 	if httpserver.StatusNotModified != response.StatusCode {
-		content = httpHandle.GzipEncoding(content)
 		response.SetBody(content)
 	}
 
+	fmt.Println(response)
+
 	content = httpHandle.WriteResponse(response)
+
+	fmt.Println("YYYYssssssssssssssss")
+	fmt.Println(content)
 	return
 }
 
@@ -309,11 +336,20 @@ func (httpHandle HttpHandle) GenerateETag(requestURI string) (string, error) {
 	return eTag, nil
 }
 
-func (httpHandle HttpHandle) NotFound() []byte {
+func (httpHandle *HttpHandle) NotFound() []byte {
 
 	notFoundStr := "HTTP/1.1 404 NOT FOUND"
 	return []byte(notFoundStr)
 }
+
+func (httpHandle *HttpHandle) RangeNotSatisfiable() []byte {
+	return []byte("HTTP/1.1 416 Requested Range Not Satisfiable")
+}
+
+func (httpHandle *HttpHandle) IsGzipEnabled() bool {
+	return true
+}
+
 
 func generateETag(identityStr string, weak bool) string {
 	var eTag string
