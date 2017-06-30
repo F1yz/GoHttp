@@ -169,7 +169,6 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 
 	if ifNoneMatch := request.Header.GetAll("If-None-Match"); len(ifNoneMatch) > 0 {
 		for _, eTagToMatch := range ifNoneMatch {
-			fmt.Println(fmt.Sprintf("sEtag: %s, clientETag: %s", serverSideETag, eTagToMatch))
 			if strings.TrimSpace(eTagToMatch) == serverSideETag {
 				response.StatusCode = httpserver.StatusNotModified
 				break
@@ -212,8 +211,6 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 		expectedStart := 0
 		expectedEnd := 0
 
-		fmt.Println("YYYYY")
-		fmt.Println(startEndRange)
 		if len(startEndRange) == 2 {
 			expectedStart = startEndRange[0]
 			expectedEnd = startEndRange[1]
@@ -246,12 +243,7 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 		response.SetBody(content)
 	}
 
-	fmt.Println(response)
-
 	content = httpHandle.WriteResponse(response)
-
-	fmt.Println("YYYYssssssssssssssss")
-	fmt.Println(content)
 	return
 }
 

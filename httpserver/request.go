@@ -76,7 +76,6 @@ func (req *Request) GetStartEndRange() []int  {
 		length = 1
 	}
 
-
 	rangeVal := make([]int, length)
 
 	for i := 0; i < len(rangeVal); i++ {
