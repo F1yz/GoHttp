@@ -73,7 +73,7 @@ func main() {
 		}()
 
 		go func() {
-			httpHandle := HttpHandle{"G:\\code\\godoc"}
+			httpHandle := HttpHandle{"E:\\code\\godoc"}
 			client.SetResponse(httpHandle)
 		}()
 	}
@@ -199,17 +199,24 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 	respHeader.Set("Expires", fileInfo.ModTime().Add(time.Duration(3600000)).Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 
 
-	if httpHandle.IsGzipEnabled() {
-		content = httpHandle.GzipEncoding(content)
-		respHeader.Set("Content-Encoding", "gzip")
-	}
+	//if httpHandle.IsGzipEnabled() {
+	//	content = httpHandle.GzipEncoding(content)
+	//	respHeader.Set("Content-Encoding", "gzip")
+	//}
 
 	// say we accept range request
 	respHeader.Set("Accept-Ranges", "bytes")
 	if request.IsRangeRequest() {
 		fileSize := len(content)
 
-		startEndRange := request.GetStartEndRange()
+		startEndRange, err := request.GetStartEndRange()
+		fmt.Println(fmt.Sprintf("ranges : %v", startEndRange))
+
+		if err != nil {
+			return httpHandle.RangeNotSatisfiable(), nil
+		}
+
+
 		expectedStart := 0
 		expectedEnd := 0
 
@@ -239,6 +246,7 @@ func (httpHandle HttpHandle) HandleMethod(request *httpserver.Request) (content 
 	}
 
 
+	//respHeader.Set("Content-Length", fmt.Sprintf("%d", len(content)))
 	response.SetHeaders(respHeader)
 
 	if httpserver.StatusNotModified != response.StatusCode {
