@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"strconv"
+	"errors"
 )
 
 type Request struct {
@@ -59,16 +60,22 @@ func (req *Request) IsRangeRequest() bool {
 	return false
 }
 
-func (req *Request) GetStartEndRange() []int  {
+func (req *Request) GetStartEndRange() ([]int, error)  {
 	rangeHeader := req.Header.Get("Range")
-	directives := strings.Split(strings.Trim(rangeHeader, " "), " ")
+
+	fmt.Println(fmt.Sprintf("------------------%v", rangeHeader))
+	if !strings.HasPrefix(rangeHeader, "bytes=") {
+		return nil, errors.New("Invalid range")
+	}
+
+	directives := strings.Split(strings.Trim(rangeHeader, "bytes="), " ")
 
 	startEndRange := directives[1]
 	rangeInfo := strings.TrimRight(startEndRange, ",")
 	rangeArray := strings.Split(rangeInfo, "-")
 
 	if len(rangeArray) == 1 {
-		return []int{ 999, 0,}
+		return []int{ 999, 0,}, errors.New("Invalid range")
 	}
 
 	length := 2
@@ -83,7 +90,7 @@ func (req *Request) GetStartEndRange() []int  {
 		rangeVal[i] = rangeIntVal
 	}
 
-	return rangeVal
+	return rangeVal, nil
 }
 
 func (req *Request) String() string {
