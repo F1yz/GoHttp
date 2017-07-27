@@ -73,6 +73,7 @@ func main() {
 		}()
 
 		go func() {
+			//
 			httpHandle := HttpHandle{"E:\\code\\godoc"}
 			client.SetResponse(httpHandle)
 		}()

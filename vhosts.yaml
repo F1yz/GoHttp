@@ -13,6 +13,10 @@ virtualhosts:
             rules:
                 - etag: on
                   expires: 60
+          - pattern: .*damn\.*
+            rules:
+                - etag: off
+                  to: index.html?m=damn
 
     - web_root: G:\code\godoc
       host: www.haha.fuck

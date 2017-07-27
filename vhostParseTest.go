@@ -5,32 +5,9 @@ import (
 	"fmt"
 	"os"
 	"github.com/go-yaml/yaml"
+	"vhosts"
 )
 
-type VirtualHost struct {
-	WebRoot string `yaml:"web_root"`
-	Host string `yaml:"host"`
-	Router [] struct{
-		Pattern string `yaml:"pattern"`
-	}
-}
-
-type VirtualHostManager struct {
-	VirtualHosts []VirtualHost
-}
-
-
-func (vhManager *VirtualHostManager) SitesAvailable(host string) bool  {
-	siteAvailable := false
-	for _, vhost := range vhManager.VirtualHosts {
-		if vhost.Host == host {
-			siteAvailable = true
-			break
-		}
-	}
-
-	return siteAvailable
-}
 
 
 func main() {
@@ -41,7 +18,7 @@ func main() {
 		os.Exit(-2)
 	}
 
-	virtualHostManager := VirtualHostManager{}
+	virtualHostManager := vhosts.VirtualHostManager{}
 	err = yaml.Unmarshal(configBytes, &virtualHostManager)
 
 	if err != nil {
@@ -60,7 +37,12 @@ func main() {
 	}
 
 	for _, host := range allHosts {
-		str := fmt.Sprintf("WebRoot: %v, Host: %v, Router: %v", host.WebRoot, host.Host, host.Router)
+
+		routerStr := ""
+		for _, route := range host.Router {
+			routerStr  += route.String()
+		}
+		str := fmt.Sprintf("WebRoot: %v, Host: %v, Router: %v", host.WebRoot, host.Host, routerStr)
 		fmt.Println(str)
 	}
 
