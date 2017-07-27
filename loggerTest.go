@@ -6,8 +6,8 @@ import (
 
 func main()  {
 	logger.SetLevel(logger.LevelTrace)
-	logger.Trace("haha", "hey, Im fine, fuck u.")
-	logger.Debug("WTF")
-	logger.Error("only error show!")
-	logger.Critical("so and i!")
+	logger.Trace("%v", "haha", "hey, Im fine, fuck u.")
+	logger.Debug("%v", "WTF")
+	logger.Error("%v", "only error show!")
+	logger.Critical("%v", "so and i!")
 }

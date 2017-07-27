@@ -3,6 +3,7 @@ package fl1zlog
 import (
 	"log"
 	"os"
+	"fmt"
 )
 
 const (
@@ -13,6 +14,21 @@ const (
 	LevelError
 	LevelCritical
 )
+
+// not used yet.
+type LoggerInterface interface {
+	Trace(format string, args ...interface{})
+
+	Debug(format string, args ...interface{})
+
+	Info(format string, args ...interface{})
+
+	Warning(format string, args ...interface{})
+
+	Error(format string, args ...interface{})
+
+	Critical(format string, args ...interface{})
+}
 
 var level = LevelTrace
 var Fl1zLog = log.New(os.Stdout, "", log.LstdFlags | log.Lshortfile)
@@ -25,38 +41,44 @@ func Level() int {
 	return level
 }
 
-func Trace(args ...interface{}) {
+func Trace(format string, args ...interface{}) {
 	if level <= LevelTrace {
-		Fl1zLog.Printf("Trace: %v\n", args)
+		formatStr := fmt.Sprintf("Trace: %s\n", format)
+		Fl1zLog.Printf(formatStr, args)
 	}
 }
 
-func Debug(args ...interface{})  {
+func Debug(format string, args ...interface{})  {
 	if level <= LevelDebug {
-		Fl1zLog.Printf("Debug: %v\n", args)
+		formatStr := fmt.Sprintf("Debug: %s\n", format)
+		Fl1zLog.Printf(formatStr, args)
 	}
 }
 
-func Info(args ...interface{})  {
+func Info(format string, args ...interface{})  {
 	if level <= LevelInfo {
-		Fl1zLog.Printf("Info: %v\n", args)
+		formatStr := fmt.Sprintf("Info: %s\n", format)
+		Fl1zLog.Printf(formatStr, args)
 	}
 }
 
-func Warning(args ...interface{})  {
+func Warning(format string, args ...interface{})  {
 	if level <= LevelWarning {
-		Fl1zLog.Printf("Warning: %v\n", args)
+		formatStr := fmt.Sprintf("Warning: %s\n", format)
+		Fl1zLog.Printf(formatStr, args)
 	}
 }
 
-func Error(args ...interface{})  {
+func Error(format string, args ...interface{})  {
 	if level <= LevelError {
-		Fl1zLog.Printf("Error: %v\n", args)
+		formatStr := fmt.Sprintf("Error: %s\n", format)
+		Fl1zLog.Printf(formatStr, args)
 	}
 }
 
-func Critical(args ...interface{})  {
+func Critical(format string, args ...interface{})  {
 	if level <= LevelCritical {
-		Fl1zLog.Printf("Critical: %v\n", args)
+		formatStr := fmt.Sprintf("Critical: %s\n", format)
+		Fl1zLog.Printf(formatStr, args)
 	}
 }
